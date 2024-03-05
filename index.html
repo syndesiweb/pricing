@@ -9,6 +9,64 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.7.8/vue.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+
+<style>
+	
+	.slider::-webkit-slider-thumb {
+	    -webkit-appearance: none;
+	    -moz-appearance: none;
+	    appearance: none;
+	    width: 5px;
+	    height: 5px;
+	    border-radius: 50%;
+	    background: white;
+	    cursor: pointer;
+	    box-shadow: 0 5px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+	}
+	
+	.slider::-moz-range-thumb {
+	    width: 5px;
+	    height: 5px;
+	    border-radius: 50%;
+	    background: white;
+	    cursor: pointer;
+	    box-shadow: 0 5px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+	}
+	
+	.slider-pseudo{
+	    margin: 0.4rem -15.5px 0 -15.5px;
+	}
+	
+	.slider-pseudo::-webkit-slider-thumb {
+	    -webkit-appearance: none;
+	    -moz-appearance: none;
+	    appearance: none;
+	    width: 35px;
+	    height: 35px;
+	    border-radius: 50%;
+	    background: white;
+	    cursor: pointer;
+	    box-shadow: 0 5px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+	}
+	
+	.slider-pseudo::-moz-range-thumb {
+	    width: 35px;
+	    height: 35px;
+	    border-radius: 50%;
+	    background: white;
+	    cursor: pointer;
+	    box-shadow: 0 5px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+	}
+	
+	
+	.bubble {
+	    text-align:center;
+	    top:-2rem;
+	    position: absolute;
+	    transform: translateX(-50%);
+	}
+</style>
+</head>
 <body class="bg-blue-50">
 <div id="app">
     <main>
