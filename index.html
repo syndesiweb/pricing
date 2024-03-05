@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://unpkg.com/tailwindcss@1.0.0-beta.3/dist/tailwind.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.7.8/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+<body class="bg-blue-50">
+<div id="app">
+    <main>
+        <!-- Pricing section -->
+        <div class="mx-auto mt-16 max-w-7xl px-6 sm:mt-32 lg:px-8">
+            <div class="mt-16 flex justify-center">
+                <fieldset
+                        class="bg-white shadow-sm grid grid-cols-2 gap-x-1 rounded-md p-1.5 text-center md:text-lg font-medium leading-5 ring-1 ring-inset ring-gray-200">
+                    <legend class="sr-only">Payment frequency</legend>
+                    <!-- Checked: "bg-indigo-600 text-white", Not Checked: "text-gray-500" -->
+                    <label class="cursor-pointer rounded-md px-3 md:px-6 py-2 md:py-4"
+                           v-bind:class="{'bg-blue-500 text-white': selectedType === 'webshop', 'text-gray-500': selectedType !== 'webshop'}">
+                        <input type="radio" name="frequency" class="sr-only" v-model="selectedType" value="webshop"/>
+                        <span>Voor webshops</span>
+                    </label>
+                    <!-- Checked: "bg-indigo-600 text-white", Not Checked: "text-gray-500" -->
+                    <label class="cursor-pointer rounded-md px-3 md:px-6 py-2 md:py-4"
+                           v-bind:class="{'bg-blue-500 text-white': selectedType === 'fulfilment', 'text-gray-500': selectedType !== 'fulfilment'}">
+                        <input type="radio" name="frequency" class="sr-only" v-model="selectedType" value="fulfilment"/>
+                        <span>Voor fulfilment</span>
+                    </label>
+                </fieldset>
+            </div>
+            <div class="mt-16 px-8 text-center">
+                <p class="text-gray-900 text-lg">
+                    Hoeveel bestellingen verwerk jij per dag?
+                </p>
+            </div>
+            <div class="mt-16 flex justify-center space-x-8 px-10">
+                <div class="flex-grow relative pt-4 max-w-md md:max-w-2xl">
+                    <label for="volume" class="bubble text-lg font-normal text-gray-900">
+                        {{expectedPackagesADay}}
+                    </label>
+                    <div class='flex-grow relative'>
+                        <input type="range"
+                               class="w-full pointer-events-none h-3 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-blue-500 slider"
+                               id="volume" name="volume" :step="step" :min="minPackages" v-model="expectedPackagesADay"
+                               :max="maxPackages"/>
+
+                        <input type="range" @input="setRangeGradient"
+                               class="absolute inset-0 pointer-events-auto h-3 bg-transparent rounded-lg appearance-none cursor-pointer accent-blue-500 slider-pseudo"
+                               id="volume" name="volume" :step="step" :min="minPackages" v-model="expectedPackagesADay"
+                               :max="maxPackages"/>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="isolate mx-auto px-4 md:px-10 py-10 gap-8 -mx-10 mt-10 grid grid auto-cols-[100%] md:auto-cols-[50%] lg:auto-cols-[33%] grid-flow-col overflow-x-scroll scrolling-touch items-start space-x-4 pt-4 pb-10 -mt-10 snap-x scroll-smooth">
+                    <div v-for="(plan, planKey) in selectedPlans"
+                         class="col-span-1 bg-white shadow-xl block rounded-xl p-6 md:p-8 ring-1 transition-all duration-150"
+                         v-bind:class="{'scale-105 z-10 bg-blue-950 text-white ring-blue-950 most-picked': selectedPlan === planKey, 'scale-100 text-gray-500 ring-gray-50': selectedPlan !== planKey, '': !!plan.mostPicked}">
+                        <h2 id="tier-hobby" class="text-xl font-semibold leading-8"
+                            v-bind:class="{'text-white': selectedPlan === planKey, 'text-gray-900': selectedPlan !== planKey}">
+                            {{ plan.name }}</h2>
+                        <p class="mt-4 text-sm leading-6"
+                           v-bind:class="{'text-white': selectedPlan === planKey, 'text-gray-600': selectedPlan !== planKey}">
+                            {{ plan.description }}</p>
+                        <p class="mt-6 flex items-baseline gap-x-1">
+                            <!-- Price, update based on frequency toggle state -->
+                            <span class="text-4xl font-bold tracking-tight"
+                                  v-bind:class="{'text-white': selectedPlan === planKey, 'text-gray-900': selectedPlan !== planKey}">{{ plan.price
+                                }}</span>
+                            <!-- Payment frequency, update based on frequency toggle state -->
+                            <span class="text-sm font-semibold leading-6"
+                                  v-bind:class="{'text-white': selectedPlan === planKey, 'text-gray-600': selectedPlan !== planKey}">/maand</span>
+                        </p>
+                        <p class="mt-2 flex items-baseline gap-x-1">
+                            <!-- Price, update based on frequency toggle state -->
+                            <span class="font-semibold tracking-tight"
+                                  v-bind:class="{'text-white': selectedPlan === planKey, 'text-gray-700': selectedPlan !== planKey}">+ €{{ plan.order_price.toFixed(2)}}</span>
+                            <!-- Payment frequency, update based on frequency toggle state -->
+                            <span class="font-light leading-6"
+                                  v-bind:class="{'text-white': selectedPlan === planKey, 'text-gray-500': selectedPlan !== planKey}">per extra bestelling</span>
+                        </p>
+                        <div class="mt-8 w-full">
+                            <button class="block bg-blue-500 text-white font-semibold w-full px-5 py-3 rounded shadow">
+                                Plan een demo
+                            </button>
+                        </div>
+                        <ul role="list" class="mt-8 space-y-3 text-sm leading-6"
+                            v-bind:class="{'text-white': selectedPlan === planKey, 'text-gray-600': selectedPlan !== planKey}">
+                            <li class="flex gap-x-3">
+                                <svg class="h-6 w-5 flex-none"
+                                     v-bind:class="{'text-green-400': selectedPlan === planKey, 'text-green-600': selectedPlan !== planKey}"
+                                     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd"
+                                          d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                                <p>
+                                    Inclusief <b>{{ plan.included_orders }}</b> bestellingen
+                                </p>
+                            </li>
+                            <li class="flex gap-x-3">
+                                <svg class="h-6 w-5 flex-none"
+                                     v-bind:class="{'text-green-400': selectedPlan === planKey, 'text-green-600': selectedPlan !== planKey}"
+                                     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd"
+                                          d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                                Alle features
+                            </li>
+                            <li class="flex gap-x-3">
+                                <svg class="h-6 w-5 flex-none"
+                                     v-bind:class="{'text-green-400': selectedPlan === planKey, 'text-green-600': selectedPlan !== planKey}"
+                                     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd"
+                                          d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                                <span>
+								<b>Onbeperkte</b> gebruikers
+							</span>
+                            </li>
+                            <li class="flex gap-x-3">
+                                <svg class="h-6 w-5 flex-none"
+                                     v-bind:class="{'text-green-400': selectedPlan === planKey, 'text-green-600': selectedPlan !== planKey}"
+                                     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd"
+                                          d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                                <span>
+              	<b>Gratis</b> onboarding t.w.v €500
+              </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script type="application/javascript">
+    new Vue({
+        el: "#app",
+        filters: {
+            normalise: function (value) {
+                return value.toFixed(5);
+            }
+        },
+        mounted() {
+            this.setRangeGradient();
+        },
+        data: {
+            selectedType: "webshop",
+            selectedPlan: "basic",
+            expectedPackagesADay: 250,
+            minPackages: 50,
+            maxPackages: 3000,
+            plans: {
+                webshop: {
+                    basic: {
+                        name: "Basic",
+                        description: "A plan that scales with your rapidly growing business.",
+                        price: 150,
+                        order_price: 0.35,
+                        included_orders: 2000
+                    },
+                    basic1: {
+                        name: "Scale",
+                        description: "A plan that scales with your rapidly growing business.",
+                        price: 295,
+                        order_price: 0.3,
+                        included_orders: 3500
+                    },
+                    basic2: {
+                        name: "Grow",
+                        description: "A plan that scales with your rapidly growing business.",
+                        price: 600,
+                        order_price: 0.25,
+                        included_orders: 10000
+                    },
+                    basic3: {
+                        name: "Pro",
+                        description: "A plan that scales with your rapidly growing business.",
+                        price: 1200,
+                        order_price: 0.2,
+                        included_orders: 20000,
+                        mostPicked: true
+                    },
+                    basic4: {
+                        name: "Premium",
+                        description: "A plan that scales with your rapidly growing business.",
+                        price: 1500,
+                        order_price: 0.15,
+                        included_orders: 30000
+                    },
+                    basic5: {
+                        name: "Enterprise",
+                        description: "A plan that scales with your rapidly growing business.",
+                        price: 2500,
+                        order_price: 0.1,
+                        included_orders: 100000
+                    }
+                },
+                fulfilment: {
+                    startup: {
+                        name: "Startup",
+                        description: "A plan that scales with your rapidly growing business.",
+                        price: 450,
+                        order_price: 0.35,
+                        included_orders: 1500
+                    },
+                    basic: {
+                        name: "Basic",
+                        description: "A plan that scales with your rapidly growing business.",
+                        price: 750,
+                        order_price: 0.25,
+                        mostPicked: true,
+                        included_orders: 3500
+                    },
+                    pro: {
+                        name: "Pro",
+                        description: "A plan that scales with your rapidly growing business.",
+                        price: 2500,
+                        order_price: 0.15,
+                        included_orders: 15000
+                    }
+                }
+            }
+        },
+        computed: {
+            expectedPackages() {
+                return this.expectedPackagesADay * 30;
+            },
+            selectedPlans() {
+                return this.plans[this.selectedType];
+            },
+            step() {
+                return 50;
+            }
+        },
+        watch: {
+            expectedPackages: _.throttle(function () {
+                this.selectPlan();
+            }, 10),
+            selectedType: function () {
+                this.selectPlan();
+            },
+            selectedPlan: function (old, newPlan) {
+                if (old !== newPlan) {
+                    this.$nextTick(() => {
+                        const element = document.querySelector(".most-picked");
+                        if (element) {
+                            element.scrollIntoView({
+                                behavior: "smooth",
+                                block: "center",
+                                inline: "center"
+                            });
+                        }
+
+                        this.setRangeGradient();
+                    });
+                }
+            }
+        },
+        methods: {
+            setRangeGradient($event) {
+                let element = document.querySelector(".slider-pseudo");
+                let bubble = document.querySelector(".bubble")
+                let progress = ((this.expectedPackagesADay - this.minPackages) / (this.maxPackages - this.minPackages)) * 100;
+                element.style.background =
+                    "linear-gradient(to right, #3b82f6 0%, #3b82f6 " +
+                    progress +
+                    "%, #cbd5e1 " +
+                    progress +
+                    "%, #cbd5e1 100%)";
+
+                bubble.style.left = `calc(${progress}%)`;
+            },
+            selectPlan() {
+                let cheapestPlan = null;
+                let cheapestCost = Infinity;
+
+                const plans = this.plans[this.selectedType]; // Get plans for the selected type
+                for (const planKey in plans) {
+                    if (plans.hasOwnProperty(planKey)) {
+                        const plan = plans[planKey];
+                        // Calculate the cost for this plan
+                        const extraOrders = Math.max(
+                            0,
+                            this.expectedPackages - plan.included_orders
+                        );
+                        const totalCost = plan.price + extraOrders * plan.order_price;
+
+                        // Check if this is the cheapest plan so far
+                        if (totalCost < cheapestCost) {
+                            cheapestCost = totalCost;
+                            cheapestPlan = planKey;
+                        }
+                    }
+                }
+
+                // Update the selectedPlan with the cheapest found
+                this.selectedPlan = cheapestPlan;
+            }
+        }
+    });
+
+</script>
+</body>
+</html>
